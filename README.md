@@ -1,4 +1,4 @@
-# Spotify API ETL to PostGresSQL
+# Spotify API ETL of Tracks by The Beatles to PostGresSQL
 This project builds an ETL pipeline using the Spotify API, and loads all track information from the band "The Beatles" to PostGresSQL. 
 
 *This project is currently in progress...*
