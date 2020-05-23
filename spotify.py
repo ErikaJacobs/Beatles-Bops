@@ -17,16 +17,24 @@ def spotify_connect(client_id, client_secret):
 
 # Get Artist URI
 
-def uri_artist(artist, sp):
-    name = {artist}
+def artist_table(artist, sp):
+    
+    import pandas as pd
+    
+    name = artist
 
     # Search For Artist
-    result = sp.search(name)
+    result = sp.search({name})
 
     #Extract Artist's URI
     uri_artist = result['tracks']['items'][0]['artists'][0]['uri']
     
-    return uri_artist
+    artist_df = pd.DataFrame({
+        'artist_uri': [uri_artist],
+        'artist_name': [name]
+        })
+    
+    return artist_df
 
 #%%
 
@@ -36,37 +44,26 @@ def album_table(uri, sp):
     
     albums = sp.artist_albums(uri)
     
-    import ast
     import pandas as pd
     
     album_uri=[]
-    album_type=[]
-    name=[]
     album_name=[]
-    total_tracks=[]
+    album_tracks=[]
     release_date=[]
     
     # Extract Data From API
     
     for album in range(len(albums['items'])):
         album_uri.append(albums['items'][album]['uri']) #
-        album_type.append(albums['items'][album]['type'])
         album_name.append(albums['items'][album]['name']) #
-        total_tracks.append(albums['items'][album]['total_tracks'])
+        album_tracks.append(albums['items'][album]['total_tracks'])
         release_date.append(albums['items'][album]['release_date'])
-        
-        
-        artist = str(albums['items'][album]['artists']).replace('[{','{').replace('}]', '}')
-        artist = ast.literal_eval(artist)
-        name.append(artist['name'])
 
     album_df = pd.DataFrame({
-        'artist': name,
+        'album_uri': album_uri,
         'album_name': album_name,
         'release_date': release_date,
-        'total_tracks': total_tracks,
-        'album_uri': album_uri,
-        'album_type': album_type
+        'album_tracks': album_tracks
         })
     
     return album_df
@@ -90,14 +87,11 @@ def track_table(uri, sp):
     album_uri = []
     disc_number = []
     duration_ms = []
-    track_id = []
     track_name = []
     track_number = []
-    track_type = []
     track_uri = []
     track_market = []
     artist_uri = []
-    name = []
     
     # Loop
     for album in album_uri_loop:
@@ -107,32 +101,26 @@ def track_table(uri, sp):
             album_uri.append(album)
             disc_number.append(tracks['items'][track]['disc_number'])
             duration_ms.append(tracks['items'][track]['duration_ms'])
-            track_id.append(tracks['items'][track]['id'])
             track_name.append(tracks['items'][track]['name'])     
             track_number.append(tracks['items'][track]['track_number'])
-            track_type.append(tracks['items'][track]['type'])
             track_uri.append(tracks['items'][track]['uri'])
             track_market.append(tracks['items'][track]['available_markets'])
             artist_uri.append(tracks['items'][track]['artists'][0]['uri'])
-            name.append(tracks['items'][track]['artists'][0]['name'])
      
     track_df = pd.DataFrame({
-        'album_uri': album_uri,
-        'disc_number': disc_number,
-        'duration_ms': duration_ms,
-        'track_id': track_id,
+        'track_uri': track_uri,   
         'track_name': track_name,
         'track_number': track_number,
-        'track_type': track_type,
-        'track_uri': track_uri,        
-        'track_market': track_market,
+        'duration_ms': duration_ms,
+        'disc_number': disc_number,
+        'album_uri': album_uri,
         'artist_uri': artist_uri,
-        'artist': name
+        'track_market': track_market
         })
     
-    keys = ['album_uri', 'disc_number', 'duration_ms',
-                     'track_id', 'track_name', 'track_number', 'track_type', 'track_uri',
-                     'artist_uri', 'artist']
+    keys = ['track_uri', 'track_name', 'track_number',
+                     'duration_ms', 'disc_number', 'album_uri',
+                     'artist_uri']
     
     track_df2 = track_df.track_market.apply(pd.Series)\
         .merge(track_df, left_index=True, right_index=True)\
@@ -149,56 +137,64 @@ def top_track_table(track_df, uri, sp):
     
     import pandas as pd
     
-    # Obtain All Markets
-    markets = track_df['track_market'].unique().tolist()
-    
-    # Top Tracks
-    top_tracks = sp.artist_top_tracks(uri, country='US')
-    
     # Create Empty Lists
     
     track_market = []
-    track_name = []
     top_track_pop = []
     top_track_rank = []
     track_uri = []
-    track_id = []
     album_uri = []
     artist_uri = []
-    name = []
     
-    top_tracks['tracks']
-    for market in markets:
-        top_tracks = sp.artist_top_tracks(uri, country=market)
-        top_tracks = top_tracks['tracks']
+    top_tracks = sp.artist_top_tracks(uri)
+    top_tracks = top_tracks['tracks']
     
-    
-    
-        for track in top_tracks:
-            index = top_tracks.index(track)    
-            
-            track_market.append(market)
-            track_name.append(top_tracks[index]['name'])
-            top_track_pop.append(top_tracks[index]['popularity'])
-            top_track_rank.append(index + 1)
-            track_uri.append(top_tracks[index]['uri'])
-            track_id.append(top_tracks[index]['id'])
-            album_uri.append(top_tracks[index]['album']['uri'])
-            artist_uri.append(top_tracks[index]['artists'][0]['uri'])
-            name.append(top_tracks[index]['artists'][0]['name'])
+    for track in top_tracks:
+        index = top_tracks.index(track)    
+        
+        top_track_pop.append(top_tracks[index]['popularity'])
+        top_track_rank.append(index + 1)
+        track_uri.append(top_tracks[index]['uri'])
+        album_uri.append(top_tracks[index]['album']['uri'])
+        artist_uri.append(top_tracks[index]['artists'][0]['uri'])
             
     top_track_df = pd.DataFrame({
-            'track_market': track_market,
-            'track_name': track_name,
+            'track_uri': track_uri,
             'top_track_pop': top_track_pop,
             'top_track_rank': top_track_rank,
-            'track_uri': track_uri,
-            'track_id': track_id,
             'album_uri': album_uri,        
-            'artist_uri': artist_uri,
-            'artist': name
+            'artist_uri': artist_uri
             })
     return top_track_df
+
+#%%
+    
+def track_pop_table(track_df, uri, sp):
+    
+    import pandas as pd
+
+    tracklist = track_df['track_uri'].to_list()     
+    tracks = []
+    
+    for track in tracklist:
+        if track not in tracks:
+            tracks.append(track)
+    
+    track_uri = []
+    track_pop = []
+    
+    for track in tracks:
+        
+        track = sp.track(track)
+        
+        track_uri.append(track['uri'])
+        track_pop.append(track['popularity'])
+
+    track_pop_df = pd.DataFrame({
+            'track_uri': track_uri,
+            'track_pop': track_pop,
+            })
+    return track_pop_df
 
 #%%
 
@@ -221,60 +217,70 @@ def etl_queries():
     drop_track_df = "DROP TABLE  IF EXISTS track_df"
     drop_abum_df = "DROP TABLE  IF EXISTS album_df"
     drop_top_track_df = "DROP TABLE  IF EXISTS top_track_df"
+    drop_artist_df = "DROP TABLE  IF EXISTS artist_df"
+    drop_track_pop_df = "DROP TABLE  IF EXISTS track_pop_df"
     
     # Create Table Queries
     create_top_track_df = """CREATE TABLE IF NOT EXISTS top_track_df(
-        track_market varchar(200),
-        track_name varchar(200),
-        top_track_pop varchar(200),
-        top_track_rank varchar(200),
         track_uri varchar(200),
-        track_id varchar(200),
+        top_track_pop int,
+        top_track_rank int,
         album_uri varchar(200),
-        artist_uri varchar(200),
-        artist varchar(200))"""
+        artist_uri varchar(200)
+        )"""
         
     create_album_df = """CREATE TABLE IF NOT EXISTS album_df(
         album_uri varchar(200),
-        album_type varchar(200),
-        artist varchar(200),
         album_name varchar(200),
-        total_tracks varchar(200),
-        release_date varchar(200),
-        album_market varchar(200))"""
+        release_date date,
+        album_tracks int
+        )"""
         
     create_track_df =  """CREATE TABLE IF NOT EXISTS track_df(
-        album_uri varchar(300),
-        disc_number varchar(300),
-        duration_ms varchar(300),
-        track_id varchar(300),
-        track_name varchar(300),
-        track_number varchar(300),
-        track_type varchar(300),
         track_uri varchar(300),
+        track_name varchar(300),
+        track_number int,
+        duration_ms int,
+        disc_number int,
         track_market varchar(300),
-        artist_uri varchar(300),
-        artist varchar(300))"""
+        album_uri varchar(300),
+        artist_uri varchar(300)
+        )"""
+   
+    create_artist_df = """CREATE TABLE IF NOT EXISTS artist_df(
+        artist_uri varchar(200),
+        artist_name varchar(200)
+        )"""
+    
+    create_track_pop_df = """CREATE TABLE IF NOT EXISTS track_pop_df(
+        track_uri varchar(200),
+        track_pop int
+        )"""
     
     # Insert Queries
-    insert_top_track_df = """insert into top_track_df values (%s, %s, %s, 
-                %s, %s, %s, %s, %s, %s)"""
-    insert_album_df = """insert into album_df values (%s, %s, %s, 
+    insert_top_track_df = """insert into top_track_df values (%s, %s, 
                 %s, %s, %s)"""
+    insert_album_df = """insert into album_df values (%s, %s, %s, %s)"""
     insert_track_df = """insert into track_df values (%s, %s, %s, 
-                 %s, %s, %s, %s, %s, %s, %s, %s)"""
-        
+                 %s, %s, %s, %s, %s)"""
+    insert_artist_df = """insert into artist_df values (%s, %s)"""
+    insert_track_pop_df = """insert into track_pop_df values (%s, %s)"""
+    
+    #Query List
     queries = [create_top_track_df, create_album_df, create_track_df,
                insert_top_track_df, insert_album_df, insert_track_df,
-               drop_track_df, drop_abum_df, drop_top_track_df]
+               drop_track_df, drop_abum_df, drop_top_track_df,
+               drop_artist_df, create_artist_df, insert_artist_df,
+               drop_track_pop_df, create_track_pop_df, insert_track_pop_df,]
     return queries
 
 
 # EXECUTION    
-def execute_queries(conn, queries):
+def execute_queries(conn, queries, top_track_df, album_df, 
+                    track_df, artist_df, track_pop_df):
     cur = conn.cursor()
-    
-    # Execute Create Table Queries
+
+    # Execute Drop Table Queries
     cur.execute(queries[6])
     conn.commit()
     
@@ -283,34 +289,63 @@ def execute_queries(conn, queries):
     
     cur.execute(queries[8])
     conn.commit()
-        
+    
+    cur.execute(queries[9])
+    conn.commit()
+    
+    cur.execute(queries[12])
+    conn.commit()
+    
+    # Execute Create Table Queries   
+    
+    # Top Track    
     cur.execute(queries[0])
     conn.commit()
     
+    # Album
     cur.execute(queries[1])
     conn.commit()
     
+    # Track
     cur.execute(queries[2])
     conn.commit()
-        
+    
+    # Artist
+    cur.execute(queries[10])
+    conn.commit()
+    
+    # Track Desc
+    cur.execute(queries[13])
+    conn.commit()
+    
     # Execute Insert Queries
     
     for index, row in top_track_df.iterrows():
         row = row.tolist()
         cur.execute(queries[3], (row[0], row[1], row[2],
-                row[3], row[4], row[5], row[6], row[7], row[8]))
+                row[3], row[4]))
         conn.commit()
     
     for index, row in album_df.iterrows():
         row = row.tolist()
         cur.execute(queries[4], (row[0], row[1], row[2],
-                row[3], row[4], row[5]))
+                row[3]))
         conn.commit()
     
     for index, row in track_df.iterrows():
         row = row.tolist()
         cur.execute(queries[5], (row[0], row[1], row[2],
-                row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
+                row[3], row[4], row[5], row[6], row[7]))
+        conn.commit()    
+    
+    for index, row in artist_df.iterrows():
+        row = row.tolist()
+        cur.execute(queries[11], (row[0], row[1]))
+        conn.commit()    
+    
+    for index, row in track_pop_df.iterrows():
+        row = row.tolist()
+        cur.execute(queries[14], (row[0], row[1]))
         conn.commit()    
         
     # CLOSE CONNECTIONS
@@ -318,7 +353,10 @@ def execute_queries(conn, queries):
     conn.close()
 
 #%%
+    
 def application():
+    import pandas as pd
+    
     # Inputs 
     client_id = client_id
     client_secret = client_secret
@@ -326,13 +364,16 @@ def application():
     
     # ETL Process
     sp = spotify_connect(client_id, client_secret)
-    uri = uri_artist(artist, sp)
+    artist_df = artist_table(artist, sp)
+    uri = artist_df['artist_uri'][0]
     track_df = track_table(uri, sp)
     album_df = album_table(uri, sp)
     top_track_df = top_track_table(track_df, uri, sp)
+    track_pop_df = track_pop_table(track_df, uri, sp)
     conn = postgre_connect()
     queries = etl_queries()
-    execute_queries(conn, queries)
+    execute_queries(conn, queries, top_track_df, 
+                    album_df, track_df, artist_df, track_pop_df)
 
 #%%
 
@@ -342,10 +383,3 @@ application()
 # Sources 
 # https://spotipy.readthedocs.io/en/2.12.0/
 # https://medium.com/@RareLoot/extracting-spotify-data-on-your-favourite-artist-via-python-d58bc92a4330
-        
-albums = sp.artist_albums(uri, album_type = ['album', 'compilation'])
-
-for album in range(len(albums['items'])):
-    print(albums['items'][album]['name'])
-
-
