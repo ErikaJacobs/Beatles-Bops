@@ -202,123 +202,141 @@ def top_track_table(track_df, uri, sp):
 
 #%%
 
-# Inputs 
-client_id = client_id
-client_secret = client_secret
-artist = 'The Beatles'
-
-# ETL Process
-sp = spotify_connect(client_id, client_secret)
-uri = uri_artist(artist, sp)
-track_df = track_table(uri, sp)
-album_df = album_table(uri, sp)
-top_track_df = top_track_table(track_df, uri, sp)
-
-#%%
-
 # CONNECT TO POSTGRESQL
-
-import psycopg2
-
-conn = psycopg2.connect(
-    host='127.0.0.1',
-    database='BeatlesBops',
-    user = 'postgres',
-    password = 'postgres')
-
-cur = conn.cursor()
-
-cur.execute("DROP TABLE  IF EXISTS track_df")
-conn.commit()
-
-cur.execute("DROP TABLE  IF EXISTS album_df")
-conn.commit()
-
-cur.execute("DROP TABLE  IF EXISTS top_track_df")
-conn.commit()
+def postgre_connect():
+    import psycopg2
+    
+    conn = psycopg2.connect(
+        host='127.0.0.1',
+        database='BeatlesBops',
+        user = 'postgres',
+        password = 'postgres')
+    return conn
 
 # QUERIES
 
-# Create Table Queries
-create_top_track_df = """CREATE TABLE IF NOT EXISTS top_track_df(
-    track_market varchar(200),
-    track_name varchar(200),
-    top_track_pop varchar(200),
-    top_track_rank varchar(200),
-    track_uri varchar(200),
-    track_id varchar(200),
-    album_uri varchar(200),
-    artist_uri varchar(200),
-    artist varchar(200))"""
+def etl_queries():
     
-create_album_df = """CREATE TABLE IF NOT EXISTS album_df(
-    album_uri varchar(200),
-    album_type varchar(200),
-    artist varchar(200),
-    album_name varchar(200),
-    total_tracks varchar(200),
-    release_date varchar(200),
-    album_market varchar(200))"""
+# Drop Table Queries    
+    drop_track_df = "DROP TABLE  IF EXISTS track_df"
+    drop_abum_df = "DROP TABLE  IF EXISTS album_df"
+    drop_top_track_df = "DROP TABLE  IF EXISTS top_track_df"
     
-create_track_df =  """CREATE TABLE IF NOT EXISTS track_df(
-    album_uri varchar(300),
-    disc_number varchar(300),
-    duration_ms varchar(300),
-    track_id varchar(300),
-    track_name varchar(300),
-    track_number varchar(300),
-    track_type varchar(300),
-    track_uri varchar(300),
-    track_market varchar(300),
-    artist_uri varchar(300),
-    artist varchar(300))"""
+    # Create Table Queries
+    create_top_track_df = """CREATE TABLE IF NOT EXISTS top_track_df(
+        track_market varchar(200),
+        track_name varchar(200),
+        top_track_pop varchar(200),
+        top_track_rank varchar(200),
+        track_uri varchar(200),
+        track_id varchar(200),
+        album_uri varchar(200),
+        artist_uri varchar(200),
+        artist varchar(200))"""
+        
+    create_album_df = """CREATE TABLE IF NOT EXISTS album_df(
+        album_uri varchar(200),
+        album_type varchar(200),
+        artist varchar(200),
+        album_name varchar(200),
+        total_tracks varchar(200),
+        release_date varchar(200),
+        album_market varchar(200))"""
+        
+    create_track_df =  """CREATE TABLE IF NOT EXISTS track_df(
+        album_uri varchar(300),
+        disc_number varchar(300),
+        duration_ms varchar(300),
+        track_id varchar(300),
+        track_name varchar(300),
+        track_number varchar(300),
+        track_type varchar(300),
+        track_uri varchar(300),
+        track_market varchar(300),
+        artist_uri varchar(300),
+        artist varchar(300))"""
+    
+    # Insert Queries
+    insert_top_track_df = """insert into top_track_df values (%s, %s, %s, 
+                %s, %s, %s, %s, %s, %s)"""
+    insert_album_df = """insert into album_df values (%s, %s, %s, 
+                %s, %s, %s)"""
+    insert_track_df = """insert into track_df values (%s, %s, %s, 
+                 %s, %s, %s, %s, %s, %s, %s, %s)"""
+        
+    queries = [create_top_track_df, create_album_df, create_track_df,
+               insert_top_track_df, insert_album_df, insert_track_df,
+               drop_track_df, drop_abum_df, drop_top_track_df]
+    return queries
 
-# Insert Queries
-insert_top_track_df = """insert into top_track_df values (%s, %s, %s, 
-            %s, %s, %s, %s, %s, %s)"""
-insert_album_df = """insert into album_df values (%s, %s, %s, 
-            %s, %s, %s)"""
-insert_track_df = """insert into track_df values (%s, %s, %s, 
-             %s, %s, %s, %s, %s, %s, %s, %s)"""
-    
-queries = [create_top_track_df, create_album_df, create_track_df,
-           insert_top_track_df, insert_album_df, insert_track_df]
-    
+
 # EXECUTION    
+def execute_queries(conn, queries):
+    cur = conn.cursor()
     
-# Execute Create Table Queries
-cur.execute(queries[0])
-conn.commit()
-
-cur.execute(queries[1])
-conn.commit()
-
-cur.execute(queries[2])
-conn.commit()
-    
-# Execute Insert Queries
-
-for index, row in top_track_df.iterrows():
-    row = row.tolist()
-    cur.execute(queries[3], (row[0], row[1], row[2],
-            row[3], row[4], row[5], row[6], row[7], row[8]))
+    # Execute Create Table Queries
+    cur.execute(queries[6])
     conn.commit()
-
-for index, row in album_df.iterrows():
-    row = row.tolist()
-    cur.execute(queries[4], (row[0], row[1], row[2],
-            row[3], row[4], row[5]))
-    conn.commit()
-
-for index, row in track_df.iterrows():
-    row = row.tolist()
-    cur.execute(queries[5], (row[0], row[1], row[2],
-            row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
-    conn.commit()    
     
-# CLOSE CONNECTIONS
-cur.close()
-conn.close()
+    cur.execute(queries[7])
+    conn.commit()
+    
+    cur.execute(queries[8])
+    conn.commit()
+        
+    cur.execute(queries[0])
+    conn.commit()
+    
+    cur.execute(queries[1])
+    conn.commit()
+    
+    cur.execute(queries[2])
+    conn.commit()
+        
+    # Execute Insert Queries
+    
+    for index, row in top_track_df.iterrows():
+        row = row.tolist()
+        cur.execute(queries[3], (row[0], row[1], row[2],
+                row[3], row[4], row[5], row[6], row[7], row[8]))
+        conn.commit()
+    
+    for index, row in album_df.iterrows():
+        row = row.tolist()
+        cur.execute(queries[4], (row[0], row[1], row[2],
+                row[3], row[4], row[5]))
+        conn.commit()
+    
+    for index, row in track_df.iterrows():
+        row = row.tolist()
+        cur.execute(queries[5], (row[0], row[1], row[2],
+                row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10]))
+        conn.commit()    
+        
+    # CLOSE CONNECTIONS
+    cur.close()
+    conn.close()
+
+#%%
+def application():
+    # Inputs 
+    client_id = client_id
+    client_secret = client_secret
+    artist = 'The Beatles'
+    
+    # ETL Process
+    sp = spotify_connect(client_id, client_secret)
+    uri = uri_artist(artist, sp)
+    track_df = track_table(uri, sp)
+    album_df = album_table(uri, sp)
+    top_track_df = top_track_table(track_df, uri, sp)
+    conn = postgre_connect()
+    queries = etl_queries()
+    execute_queries(conn, queries)
+
+#%%
+
+application()
 
 #%%
 # Sources 
