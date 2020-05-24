@@ -43,6 +43,7 @@ def artist_table(artist, sp):
 def album_table(uri, sp):
     
     albums = sp.artist_albums(uri)
+    albums = sp.artist_albums(uri, album_type = 'album')
     
     import pandas as pd
     
@@ -90,7 +91,6 @@ def track_table(uri, sp):
     track_name = []
     track_number = []
     track_uri = []
-    track_market = []
     artist_uri = []
     
     # Loop
@@ -104,7 +104,6 @@ def track_table(uri, sp):
             track_name.append(tracks['items'][track]['name'])     
             track_number.append(tracks['items'][track]['track_number'])
             track_uri.append(tracks['items'][track]['uri'])
-            track_market.append(tracks['items'][track]['available_markets'])
             artist_uri.append(tracks['items'][track]['artists'][0]['uri'])
      
     track_df = pd.DataFrame({
@@ -114,22 +113,10 @@ def track_table(uri, sp):
         'duration_ms': duration_ms,
         'disc_number': disc_number,
         'album_uri': album_uri,
-        'artist_uri': artist_uri,
-        'track_market': track_market
+        'artist_uri': artist_uri
         })
     
-    keys = ['track_uri', 'track_name', 'track_number',
-                     'duration_ms', 'disc_number', 'album_uri',
-                     'artist_uri']
-    
-    track_df2 = track_df.track_market.apply(pd.Series)\
-        .merge(track_df, left_index=True, right_index=True)\
-        .drop(["track_market"], axis = 1)\
-        .melt(id_vars = keys, value_name = "track_market")\
-        .drop("variable", axis = 1)\
-        .dropna()
-    
-    return track_df2
+    return track_df
 
 #%%
 
@@ -242,7 +229,6 @@ def etl_queries():
         track_number int,
         duration_ms int,
         disc_number int,
-        track_market varchar(300),
         album_uri varchar(300),
         artist_uri varchar(300)
         )"""
@@ -262,7 +248,7 @@ def etl_queries():
                 %s, %s, %s)"""
     insert_album_df = """insert into album_df values (%s, %s, %s, %s)"""
     insert_track_df = """insert into track_df values (%s, %s, %s, 
-                 %s, %s, %s, %s, %s)"""
+                 %s, %s, %s, %s)"""
     insert_artist_df = """insert into artist_df values (%s, %s)"""
     insert_track_pop_df = """insert into track_pop_df values (%s, %s)"""
     
@@ -335,7 +321,7 @@ def execute_queries(conn, queries, top_track_df, album_df,
     for index, row in track_df.iterrows():
         row = row.tolist()
         cur.execute(queries[5], (row[0], row[1], row[2],
-                row[3], row[4], row[5], row[6], row[7]))
+                row[3], row[4], row[5], row[6]))
         conn.commit()    
     
     for index, row in artist_df.iterrows():
