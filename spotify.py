@@ -42,7 +42,6 @@ def artist_table(artist, sp):
 
 def album_table(uri, sp):
     
-    albums = sp.artist_albums(uri)
     albums = sp.artist_albums(uri, album_type = 'album')
     
     import pandas as pd
