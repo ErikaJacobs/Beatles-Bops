@@ -118,42 +118,6 @@ def track_table(uri, sp):
     return track_df
 
 #%%
-
-def top_track_table(track_df, uri, sp):
-    
-    import pandas as pd
-    
-    # Create Empty Lists
-    
-    track_market = []
-    top_track_pop = []
-    top_track_rank = []
-    track_uri = []
-    album_uri = []
-    artist_uri = []
-    
-    top_tracks = sp.artist_top_tracks(uri)
-    top_tracks = top_tracks['tracks']
-    
-    for track in top_tracks:
-        index = top_tracks.index(track)    
-        
-        top_track_pop.append(top_tracks[index]['popularity'])
-        top_track_rank.append(index + 1)
-        track_uri.append(top_tracks[index]['uri'])
-        album_uri.append(top_tracks[index]['album']['uri'])
-        artist_uri.append(top_tracks[index]['artists'][0]['uri'])
-            
-    top_track_df = pd.DataFrame({
-            'track_uri': track_uri,
-            'top_track_pop': top_track_pop,
-            'top_track_rank': top_track_rank,
-            'album_uri': album_uri,        
-            'artist_uri': artist_uri
-            })
-    return top_track_df
-
-#%%
     
 def track_pop_table(track_df, uri, sp):
     
@@ -202,49 +166,39 @@ def etl_queries():
 # Drop Table Queries    
     drop_track_df = "DROP TABLE  IF EXISTS track_df"
     drop_abum_df = "DROP TABLE  IF EXISTS album_df"
-    drop_top_track_df = "DROP TABLE  IF EXISTS top_track_df"
     drop_artist_df = "DROP TABLE  IF EXISTS artist_df"
     drop_track_pop_df = "DROP TABLE  IF EXISTS track_pop_df"
     
     # Create Table Queries
-    create_top_track_df = """CREATE TABLE IF NOT EXISTS top_track_df(
-        track_uri varchar(200),
-        top_track_pop int,
-        top_track_rank int,
-        album_uri varchar(200),
-        artist_uri varchar(200)
-        )"""
         
     create_album_df = """CREATE TABLE IF NOT EXISTS album_df(
-        album_uri varchar(200),
-        album_name varchar(200),
+        album_uri varchar(40),
+        album_name varchar(70),
         release_date date,
         album_tracks int
         )"""
         
     create_track_df =  """CREATE TABLE IF NOT EXISTS track_df(
-        track_uri varchar(300),
-        track_name varchar(300),
+        track_uri varchar(40),
+        track_name varchar(215),
         track_number int,
         duration_ms int,
         disc_number int,
-        album_uri varchar(300),
-        artist_uri varchar(300)
+        album_uri varchar(40),
+        artist_uri varchar(40)
         )"""
    
     create_artist_df = """CREATE TABLE IF NOT EXISTS artist_df(
-        artist_uri varchar(200),
-        artist_name varchar(200)
+        artist_uri varchar(40),
+        artist_name varchar(20)
         )"""
     
     create_track_pop_df = """CREATE TABLE IF NOT EXISTS track_pop_df(
-        track_uri varchar(200),
+        track_uri varchar(40),
         track_pop int
         )"""
     
     # Insert Queries
-    insert_top_track_df = """insert into top_track_df values (%s, %s, 
-                %s, %s, %s)"""
     insert_album_df = """insert into album_df values (%s, %s, %s, %s)"""
     insert_track_df = """insert into track_df values (%s, %s, %s, 
                  %s, %s, %s, %s)"""
@@ -252,91 +206,123 @@ def etl_queries():
     insert_track_pop_df = """insert into track_pop_df values (%s, %s)"""
     
     #Query List
-    queries = [create_top_track_df, create_album_df, create_track_df,
-               insert_top_track_df, insert_album_df, insert_track_df,
-               drop_track_df, drop_abum_df, drop_top_track_df,
+    queries = [drop_track_df, create_track_df, insert_track_df,
+               drop_abum_df, create_album_df, insert_album_df, 
                drop_artist_df, create_artist_df, insert_artist_df,
                drop_track_pop_df, create_track_pop_df, insert_track_pop_df,]
     return queries
 
 
 # EXECUTION    
-def execute_queries(conn, queries, top_track_df, album_df, 
+def execute_queries(conn, queries, album_df, 
                     track_df, artist_df, track_pop_df):
     cur = conn.cursor()
 
     # Execute Drop Table Queries
+    cur.execute(queries[0])
+    conn.commit()
+    
+    cur.execute(queries[3])
+    conn.commit()
+    
     cur.execute(queries[6])
-    conn.commit()
-    
-    cur.execute(queries[7])
-    conn.commit()
-    
-    cur.execute(queries[8])
     conn.commit()
     
     cur.execute(queries[9])
     conn.commit()
     
-    cur.execute(queries[12])
-    conn.commit()
-    
     # Execute Create Table Queries   
-    
-    # Top Track    
-    cur.execute(queries[0])
-    conn.commit()
-    
-    # Album
+
     cur.execute(queries[1])
     conn.commit()
     
-    # Track
-    cur.execute(queries[2])
+    cur.execute(queries[4])
     conn.commit()
     
-    # Artist
+    cur.execute(queries[7])
+    conn.commit()
+    
     cur.execute(queries[10])
-    conn.commit()
-    
-    # Track Desc
-    cur.execute(queries[13])
     conn.commit()
     
     # Execute Insert Queries
     
-    for index, row in top_track_df.iterrows():
-        row = row.tolist()
-        cur.execute(queries[3], (row[0], row[1], row[2],
-                row[3], row[4]))
-        conn.commit()
-    
-    for index, row in album_df.iterrows():
-        row = row.tolist()
-        cur.execute(queries[4], (row[0], row[1], row[2],
-                row[3]))
-        conn.commit()
-    
     for index, row in track_df.iterrows():
         row = row.tolist()
-        cur.execute(queries[5], (row[0], row[1], row[2],
+        cur.execute(queries[2], (row[0], row[1], row[2],
                 row[3], row[4], row[5], row[6]))
         conn.commit()    
     
+    for index, row in album_df.iterrows():
+        row = row.tolist()
+        cur.execute(queries[5], (row[0], row[1], row[2],
+                row[3]))
+        conn.commit()
+    
     for index, row in artist_df.iterrows():
         row = row.tolist()
-        cur.execute(queries[11], (row[0], row[1]))
+        cur.execute(queries[8], (row[0], row[1]))
         conn.commit()    
     
     for index, row in track_pop_df.iterrows():
         row = row.tolist()
-        cur.execute(queries[14], (row[0], row[1]))
+        cur.execute(queries[11], (row[0], row[1]))
         conn.commit()    
-        
-    # CLOSE CONNECTIONS
+    
+    # Close Cursor
     cur.close()
-    conn.close()
 
+#%%
+
+def beatles_pop_fact(conn):
+    # Connection
+    cur = conn.cursor()
+ 
+    # Queries
+    drop1 = "DROP TABLE IF EXISTS beatles_fact;"
+    
+    insert1 = ('''
+               WITH df as (
+               SELECT a.track_uri, b.album_uri, b.artist_uri, 
+               ROUND(CAST(b.duration_ms as DECIMAL(8,2))/1000/60,2) as duration_mins, 
+               a.track_pop
+               FROM track_pop_df as a
+               LEFT JOIN track_df as b on a.track_uri =b.track_uri
+               LEFT JOIN artist_df as c on b.artist_uri = c.artist_uri
+               LEFT JOIN album_df as d on b.album_uri = d.album_uri
+               ORDER BY track_pop DESC, track_name)
+               
+               SELECT *
+               INTO beatles_fact
+               FROM df;
+               ''')
+    
+    drop2 = "DROP TABLE IF EXISTS track_pop_df;"
+    
+    alter1 = '''ALTER TABLE track_df
+                DROP COLUMN duration_ms;'''
+    
+    # Execute Queries
+    cur.execute(drop1)
+    conn.commit()
+    
+    cur.execute(insert1)
+    conn.commit()
+    
+    cur.execute(drop2)
+    conn.commit()
+    
+    cur.execute(alter1)
+    conn.commit()
+
+    # Close Cursor
+    cur.close()
+#%%
+
+def close_conn(conn):
+    # CLOSE CONNECTIONS
+    conn.close()
+    
 #%%
     
 def application():
@@ -353,12 +339,13 @@ def application():
     uri = artist_df['artist_uri'][0]
     track_df = track_table(uri, sp)
     album_df = album_table(uri, sp)
-    top_track_df = top_track_table(track_df, uri, sp)
     track_pop_df = track_pop_table(track_df, uri, sp)
     conn = postgre_connect()
     queries = etl_queries()
-    execute_queries(conn, queries, top_track_df, 
-                    album_df, track_df, artist_df, track_pop_df)
+    execute_queries(conn, queries, album_df, track_df, 
+                    artist_df, track_pop_df)
+    beatles_pop_fact(conn)
+    close_conn(conn)
 
 #%%
 
