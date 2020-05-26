@@ -1,4 +1,4 @@
-# Spotify API ETL of The Beatles Album Information to PostgreSQL
+# Spotify API ETL of Track Information to PostgreSQL
 This project connects to the Spotify API to collect all useful track, album, and artist information about The Beatles. An ETL pipeline then loads all track information by The Beatles to PostgreSQL, in which the data is normalized utilizing a star schema. 
 
 While this project was originally focused on creating an ETL pipeline for The Beatles as a band, inputs can be adjusted to utilize this project for any artist.
