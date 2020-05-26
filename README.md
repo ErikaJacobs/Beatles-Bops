@@ -6,6 +6,7 @@ While this project was originally focused on creating an ETL pipeline for The Be
 ## Methods Used
 * ETL
 * Data Modeling
+* Normalization
 * API Connection
 
 ## Technologies Used
