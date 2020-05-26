@@ -34,7 +34,7 @@ While this project was originally focused on creating an ETL pipeline for The Be
      * [```track_pop_table.py```](https://github.com/ErikaJacobs/Beatles-Bops/blob/master/modules/track_pop_table.py) - Pulls track popularity and creates table
      * [```track_table.py```](https://github.com/ErikaJacobs/Beatles-Bops/blob/master/modules/track_table.py) - Pulls track information and creates table
 * Schema Design
-     * [```schema_design.jpg```](https://github.com/ErikaJacobs/Beatles-Bops/blob/master/modules/track_table.py) - image of star schema
+     * [```schema_design.jpg```](https://github.com/ErikaJacobs/Beatles-Bops/blob/master/schema_design.jpg) - image of star schema
 
 # Sources
 * [Spotipy](https://spotipy.readthedocs.io/)
