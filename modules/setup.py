@@ -4,7 +4,7 @@ import configparser
 class Setup:
     
     def __init__(self):
-        self.path = os.path.dirname(os.path.realpath(__file__)).replace('modules2', '')
+        self.path = os.path.dirname(os.path.realpath(__file__)).replace('modules', '')
         self.configs = {}
  
     def config(self):
