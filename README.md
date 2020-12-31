@@ -38,7 +38,7 @@ Run the following code on the command line to install requirements:
 pip install -r requirements.txt 
 ```
 
-Run the following code to run this project:
+Run the following code on the command line to run this project:
 ```
 Python run.py
 ```
