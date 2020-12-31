@@ -1,10 +1,10 @@
 # ETL PostGres Queries
 
-def etl_queries():
+def queries():
     
-# Drop Table Queries    
+    # Drop Table Queries    
     drop_track_df = "DROP TABLE  IF EXISTS track_df"
-    drop_abum_df = "DROP TABLE  IF EXISTS album_df"
+    drop_album_df = "DROP TABLE  IF EXISTS album_df"
     drop_artist_df = "DROP TABLE  IF EXISTS artist_df"
     drop_track_pop_df = "DROP TABLE  IF EXISTS track_pop_df"
     
@@ -44,9 +44,15 @@ def etl_queries():
     insert_artist_df = """insert into artist_df values (%s, %s)"""
     insert_track_pop_df = """insert into track_pop_df values (%s, %s)"""
     
-    #Query List
-    queries = [drop_track_df, create_track_df, insert_track_df,
-               drop_abum_df, create_album_df, insert_album_df, 
-               drop_artist_df, create_artist_df, insert_artist_df,
-               drop_track_pop_df, create_track_pop_df, insert_track_pop_df,]
+    #Query Dict
+    drop_queries = [drop_track_df, drop_album_df, drop_artist_df, drop_track_pop_df]
+    create_queries = [create_track_df, create_album_df, create_artist_df, create_track_pop_df]
+    insert_queries = {'track_df': insert_track_df, 
+                      'album_df': insert_album_df, 
+                      'artist_df': insert_artist_df, 
+                      'track_pop_df': insert_track_pop_df}
+    
+    queries = {'drop_queries': drop_queries, 
+               'create_queries': create_queries,
+               'insert_queries': insert_queries}
     return queries

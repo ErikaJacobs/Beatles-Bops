@@ -15,6 +15,8 @@ class Setup:
     
         for config in config_list:
             self.configs[config] = Config.get('Project', config)
+        
+        self.spotify_credentials()
             
     def spotify_credentials(self):
         # Spotify Credentials
