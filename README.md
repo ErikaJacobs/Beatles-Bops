@@ -28,7 +28,20 @@ Configurations in the config.ini
 In order to use the Spotipy package, API tokens will need to be obtained directly from Spotify. [Click here](https://developer.spotify.com/documentation/general/guides/authorization-guide/) for more information on this process.
 
 ##### *Set Environment Variables*
+For this project to process, the Spotify API access key needs to be set as an environment variable called "client_id", and secret key needs to be set as an environment variable called "client_secret".
 
+##### *Install Requirements and Run*
+On the command line of your operating system, navigate to the repository directory (ideally using a Python virtual environment).
+
+Run the following code on the command line to install requirements:
+```
+pip install -r requirements.txt 
+```
+
+Run the following code to run this project:
+```
+Python run.py
+```
 # Featured Scripts or Deliverables
 * [```run.py```](run.py)
 
