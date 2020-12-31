@@ -21,13 +21,13 @@ While this project was originally focused on creating an ETL pipeline for The Be
 
 ## How To Run
 
-######Adjust Configurations
+###### *Adjust Configurations*
 Configurations in the config.ini
 
-######Obtain Spotify API Tokens
+###### *Obtain Spotify API Tokens*
 In order to use the Spotipy package, API tokens will need to be obtained directly from Spotify. [Click here](https://developer.spotify.com/documentation/general/guides/authorization-guide/) for more information on this process.
 
-######Set Environment Variables
+###### *Set Environment Variables*
 
 # Featured Scripts or Deliverables
 * [```run.py```](run.py)
