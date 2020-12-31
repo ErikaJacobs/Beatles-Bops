@@ -34,11 +34,11 @@ In order to use the Spotipy package, API tokens will need to be obtained directl
 
 # Other Repository Contents
 * Modules
-    * [```main.py```](/main.py) - Organizes execution of all modules
-    * [```queries.py```](/queries.py) - Queries to drop, create, and insert data into tables
-    * [```setup.py```](/setup.py) - Creates connection to spotify
-    * [```spotify.py```](/spotify.py) - Pulls album, artist, and track information to create tables
-    * [```sql.py```](/sql.py) - Connects to PostGreSQL, and executes queries to create fact table and star schema structure
+    * [```main.py```](modules/main.py) - Organizes execution of all modules
+    * [```queries.py```](modules/queries.py) - Queries to drop, create, and insert data into tables
+    * [```setup.py```](modules/setup.py) - Creates connection to spotify
+    * [```spotify.py```](modules/spotify.py) - Pulls album, artist, and track information to create tables
+    * [```sql.py```](modules/sql.py) - Connects to PostGreSQL, and executes queries to create fact table and star schema structure
 * [```config.ini```](config.ini) - Configurations for PostGreSQL connection and Spotify artist
 * [```requirements.txt```](requirements.txt) - Python package requirements
 * [```schema_design.jpg```](https://github.com/ErikaJacobs/Beatles-Bops/blob/master/schema_design.jpg) - image of star schema
