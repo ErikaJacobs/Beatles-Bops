@@ -28,7 +28,7 @@ Configurations in the config.ini file will need to be adjusted per local PostGre
 In order to use the Spotipy package, API tokens will need to be obtained directly from Spotify. [Click here](https://developer.spotify.com/documentation/general/guides/authorization-guide/) for more information on this process.
 
 ##### *Set Environment Variables*
-For this project to process, the Spotify API access key needs to be set as an environment variable called "spotify_id", and secret key needs to be set as an environment variable called "spotify_secret".
+For this project to process, the Spotify API access key needs to be set as an environment variable called "spotify_id", and secret key needs to be set as an environment variable called "spotify_secret". These environment variables will need to be set on the operating system this project is to be run on.
 
 ##### *Install Requirements and Run*
 On the command line of your operating system, navigate to the repository directory (ideally using a Python virtual environment).
