@@ -22,7 +22,7 @@ While this project was originally focused on creating an ETL pipeline for The Be
 ## How To Run
 
 ##### *Adjust Configurations*
-Configurations in the config.ini
+Configurations in the config.ini file will need to be adjusted per local PostGres settings (username, password, host, and database). The config.ini file is also where the artist name can be changed should that be desired.
 
 ##### *Obtain Spotify API Tokens*
 In order to use the Spotipy package, API tokens will need to be obtained directly from Spotify. [Click here](https://developer.spotify.com/documentation/general/guides/authorization-guide/) for more information on this process.
