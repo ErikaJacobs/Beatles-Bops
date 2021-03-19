@@ -93,7 +93,9 @@ class Sql:
                    FROM df;''')
         drop2 = "DROP TABLE IF EXISTS track_pop_df;"
         alter1 = '''ALTER TABLE track_df
-                    DROP COLUMN duration_ms;'''
+                    DROP COLUMN duration_ms,
+                    DROP COLUMN album_uri,
+                    DROP COLUMN artist_uri;'''
                         
         # Execute Queries
         fact_queries = [drop1, insert1, drop2, alter1]
